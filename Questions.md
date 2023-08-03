@@ -175,6 +175,16 @@ plt.show()
 img_array = keras.utils.img_to_array(img)
 plt.imshow(img_array.astype("uint8"))
 
+img_array = tf.expand_dims(img_array, 0)  # Create batch axis
 
+predictions = model.predict(img_array) #probability to predict class 1
+score = float(predictions[0])
+
+train_ds.class_names
+
+print(f"This image is {100 * (1 - score):.2f}% {train_ds.class_names[0]} \
+and {100 * score:.2f}% {train_ds.class_names[1]}")
+
+score
 
 
