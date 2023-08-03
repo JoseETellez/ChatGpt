@@ -143,6 +143,25 @@ history = model.fit(
     callbacks=callbacks
 )
 
+plt.figure(figsize=(4,3), dpi=120)
+plt.plot(history.history['loss'], label = 'Train')
+
+img = keras.utils.load_img("/content/drive/MyDrive/Dataset/test/Null/roti_0011_jpg.rf.33598e0e863c45a4e6907367ed496da2.jpg", target_size=image_size)
+
+predictions = []
+labels = []
+for img_array, img_labels in test_ds:
+  #print(img_array.shape)
+  print(img_labels)
+  print(model.predict(img_array).squeeze(1))
+  predictions = model.predict(img_array).squeeze(1)
+  labels.extend(img_labels)
+
+plt.plot(img_labels, predictions)
+
+img_array = keras.utils.img_to_array(img)
+plt.imshow(img_array.astype("uint8"))
+
 
 
 
