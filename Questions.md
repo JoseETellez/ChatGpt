@@ -26,6 +26,9 @@ import matplotlib.pyplot as plt
 # SKLearn Libraries
 from sklearn.model_selection import train_test_split
 
+#ROC curve
+from sklearn.metrics import roc_curve, roc_auc_score
+
 from google.colab import drive
 drive.mount('/content/drive')
 
@@ -149,15 +152,25 @@ plt.plot(history.history['loss'], label = 'Train')
 img = keras.utils.load_img("/content/drive/MyDrive/Dataset/test/Null/roti_0011_jpg.rf.33598e0e863c45a4e6907367ed496da2.jpg", target_size=image_size)
 
 predictions = []
-labels = []
-for img_array, img_labels in test_ds:
-  #print(img_array.shape)
-  print(img_labels)
-  print(model.predict(img_array).squeeze(1))
-  predictions = model.predict(img_array).squeeze(1)
-  labels.extend(img_labels)
+true_labels = []
+for images, labels in test_ds:
+    batch_predictions = model.predict(images).squeeze(1)
+    predictions.extend(batch_predictions)
+    true_labels.extend(labels.numpy())
 
-plt.plot(img_labels, predictions)
+from sklearn.metrics import roc_curve, roc_auc_score
+
+fpr, tpr, _ = roc_curve(true_labels, predictions)
+auc_score = roc_auc_score(true_labels, predictions)
+
+plt.plot(fpr, tpr, label=f'AUC = {auc_score:.2f}')
+plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend()
+plt.grid()
+plt.show()
 
 img_array = keras.utils.img_to_array(img)
 plt.imshow(img_array.astype("uint8"))
