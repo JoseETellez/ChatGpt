@@ -60,13 +60,34 @@ test_ds = tf.keras.utils.image_dataset_from_directory(
     batch_size=batch_size,
 )
 
+data_augmentation = keras.Sequential(
+    [
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(0.1),
+    ]
+)
+
 plt.figure(figsize=(10, 10))
 for images, labels in train_ds.take(1):
     for i in range(9):
-        ax = plt.subplot(3, 3, i + 1)
-        plt.imshow(images[i].numpy().astype("uint8"))
-        plt.title(int(labels[i]))
-        plt.axis("off")
+      augmented_images = data_augmentation(images)
+      ax = plt.subplot(3, 3, i + 1)
+      plt.imshow(augmented_images[0].numpy().astype("uint8"))
+      plt.imshow(images[i].numpy().astype("uint8"))
+      plt.title(int(labels[i]))
+      plt.axis("off")
+
+augmented_train_ds = train_ds.map(
+    lambda x, y: (data_augmentation(x, training=True), y))
+
+# Apply `data_augmentation` to the training images.
+train_ds = train_ds.map(
+    lambda img, label: (data_augmentation(img), label),
+    num_parallel_calls=tf.data.AUTOTUNE,
+)
+# Prefetching samples in GPU memory helps maximize GPU utilization.
+train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
+test_ds = test_ds.prefetch(tf.data.AUTOTUNE)
 
 data = []
 labels = []
